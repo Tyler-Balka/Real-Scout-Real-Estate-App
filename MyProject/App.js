@@ -1,10 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import SplashScreen from './screens/SplashScreen';
+import Auth from './screens/Auth';
 
 export default function App() {
   return (
-    <SplashScreen />
+    <Auth />
   );
 }
 
