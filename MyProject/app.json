@@ -2,6 +2,8 @@
   "expo": {
     "name": "MyProject",
     "slug": "MyProject",
+    "owner": "tyler_balka",
+    "scheme": "myproject",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,17 +15,27 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.myproject.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "package": "com.myproject.app",
       "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2f6e5de7-edf6-4e90-a4ea-1e9a25f7bde7"
+      }
+    },
+    "plugins": [
+      "expo-web-browser"
+    ]
   }
 }
