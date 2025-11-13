@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, Pressable, Image} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
 import onboardingImage from '../assets/realestate-app_assets-constants/assets/images/onboarding.png';
 import googleIcon from '../assets/realestate-app_assets-constants/assets/icons/google.png';
 import * as Google from 'expo-auth-session/providers/google';
@@ -9,9 +9,7 @@ import { useState, useEffect } from 'react';
 // allows the web browser to redirect back to the app after authentication
 WebBrowser.maybeCompleteAuthSession();
 
-export default function Auth(){
-    const [token, setToken] = useState(null);
-
+export default function Auth({ navigation }) {
     // useAuthRequest hook to initiate the Google authentication request
     const [request, response, promptAsync] = Google.useAuthRequest({
         webClientId: '511120655589-540bfthakbmp3164jbni7q5oip3jc2vn.apps.googleusercontent.com',
@@ -24,14 +22,16 @@ export default function Auth(){
     useEffect(() => {
         if (response?.type === 'success'){
             const token = response.authentication.accessToken;
-            setToken(token);
-            console.log("Google OAuth Token:", token);
+            fetchUserInfo(token);
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'MainTabs' }],
+            })
         }
     }, [response]);
 
     // Function to fetch user info using the obtained token
-    const fetchUserInfo = async () => {
-        if (!token) return;
+    const fetchUserInfo = async (token) => {
         try {
             const response = await fetch('https://www.googleapis.com/userinfo/v2/me', {
                 headers: {Authorization: `Bearer ${token}`},
@@ -42,11 +42,6 @@ export default function Auth(){
             console.error("Error fetching user info:", error);
         }
     }
-
-    // Fetch user info when token is set
-    useEffect(() => {
-        fetchUserInfo();
-    }, [token]);
 
     return (
         <View style={styles.container}>
@@ -63,7 +58,7 @@ export default function Auth(){
                 </View>
                 <Pressable 
                     style={{backgroundColor: 'white', width: 350, height: 59, borderRadius: 30, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: {width: 0, height: 2}, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5,}}
-                    onPress={() => {promptAsync();}}
+                    onPress={promptAsync}
                     disabled={!request}
                 >
                     <Image source={googleIcon} style={{width: 22, height: 22, position: 'absolute', left: 76}} />
