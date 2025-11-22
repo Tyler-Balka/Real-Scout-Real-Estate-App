@@ -12,7 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function MainTabs() {
+function TabNavigation() {
   return (
     <Tab.Navigator screenOptions={({ route }) => {
       let iconName;
@@ -57,8 +57,8 @@ export default function App() {
             component={Auth} 
           />
           <Stack.Screen 
-            name="MainTabs" 
-            component={MainTabs}
+            name="TabNavigation" 
+            component={TabNavigation}
           />
         </Stack.Navigator>
       </NavigationContainer>

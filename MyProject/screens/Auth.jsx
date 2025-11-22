@@ -5,17 +5,22 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
 import { useState, useEffect } from 'react';
+import { createDatabase, createUserTable, insertIntoUserTable } from '../database';
 
 // allows the web browser to redirect back to the app after authentication
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Auth({ navigation }) {
+    const redirectUri = AuthSession.makeRedirectUri({
+        scheme: 'com.myproject.app',
+    });
+
     // useAuthRequest hook to initiate the Google authentication request
     const [request, response, promptAsync] = Google.useAuthRequest({
         webClientId: '511120655589-540bfthakbmp3164jbni7q5oip3jc2vn.apps.googleusercontent.com',
         iosClientId: '511120655589-1io9u5v9pvpl4vvont1i24lh1k7cdn84.apps.googleusercontent.com',
         androidClientId: '511120655589-qqb7sqf24bds14mak2is6r2pmmisld30.apps.googleusercontent.com',
-        redirectUri: AuthSession.makeRedirectUri({useProxy: true}),
+        redirectUri: redirectUri,
     });
 
     // useEffect to handle the authentication response and extract the token
@@ -23,10 +28,6 @@ export default function Auth({ navigation }) {
         if (response?.type === 'success'){
             const token = response.authentication.accessToken;
             fetchUserInfo(token);
-            navigation.reset({
-                index: 0,
-                routes: [{ name: 'MainTabs' }],
-            })
         }
     }, [response]);
 
@@ -38,6 +39,24 @@ export default function Auth({ navigation }) {
             });
             const userInfo = await response.json();
             console.log("User Info:", userInfo);
+            // Store user info in the database
+            await createDatabase();
+            await createUserTable();
+            await insertIntoUserTable(userInfo.name, userInfo.email, userInfo.picture);
+            navigation.reset({
+                index: 0,
+                routes: [{ 
+                    name: 'TabNavigation',
+                    params: { 
+                        screen: 'Home', 
+                        params: { 
+                            name: userInfo.name, 
+                            email: userInfo.email, 
+                            profile_picture: userInfo.picture 
+                        } 
+                    }
+                 }],
+            });
         } catch (error) {
             console.error("Error fetching user info:", error);
         }
@@ -58,7 +77,7 @@ export default function Auth({ navigation }) {
                 </View>
                 <Pressable 
                     style={{backgroundColor: 'white', width: 350, height: 59, borderRadius: 30, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: {width: 0, height: 2}, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5,}}
-                    onPress={promptAsync}
+                    onPress={() => promptAsync()}
                     disabled={!request}
                 >
                     <Image source={googleIcon} style={{width: 22, height: 22, position: 'absolute', left: 76}} />
